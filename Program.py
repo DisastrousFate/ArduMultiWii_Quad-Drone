@@ -60,10 +60,14 @@ class Controller:
     
     def read(self, *args):
         while self.connected == True:
-            data = self.serial_connection.readline().decode().strip()
+            try:
 
-            if data:
-                print(data)
+                data = self.serial_connection.readline().decode().strip()
+
+                if data:
+                    print(data)
+            except Exception as e:
+                print(f"Error reading serial: {e}")
 
 
 
@@ -108,8 +112,14 @@ class MainWindow(tk.Frame):
 
         self.btn_disconnect = tk.Button(master=self, text="Disconnect from board", bg="red", fg="black")
         self.btn_disconnect.grid(row=3, column=1)
-    
 
+        self.btn_motorCalibration = tk.Button(master=self, text="Motor Calibration", bg="grey", fg="black")
+        self.btn_motorCalibration.grid(row=4, column=0)
+        self.btn_motorCalibration.bind("<Button-1>", self.on_motorCalibration)
+
+        self.btn_stopMotors = tk.Button(master=self, text="Stop Motors", bg="red", fg="black")
+        self.btn_stopMotors.grid(row=4, column=1)
+        self.btn_stopMotors.bind("<Button-1>", self.on_stopMotors)
 
         # "Y" to check arduino config
         t1 = threading.Thread(target=self.checkSettings)
@@ -138,6 +148,12 @@ class MainWindow(tk.Frame):
         selected_baudrate = self.dropdown_Baudrate.get()
         if self.arduino:
             self.arduino.baud_rate = selected_baudrate
+
+    def on_motorCalibration(self, *args):
+        self.arduino.send("Motor Calibration")
+    
+    def on_stopMotors(self, *args):
+        self.arduino.send("Stop Motors")
 
     def checkSettings(self, *args):
         while True:
