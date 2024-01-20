@@ -12,7 +12,7 @@ String mesgDictionary[] = {
 };
 
 //create an RF24 object
-RF24 radio(7, 8);  // CE, CSN
+RF24 radio(9, 8);  // CE, CSN
 
 // Max size of this struct is 32 bytes - NRF24L01 buffer limit
 struct Data_Package {
@@ -42,13 +42,16 @@ const byte address[6] = "50401";
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
-  radio.begin();
-  radio.setAutoAck(true); // Ensure autoACK is enabled
-  radio.setDataRate(RF24_250KBPS);
+  if (!radio.begin()) {
+    Serial.println(F("radio hardware is not responding!!"));
+    while (1) {}  // hold in infinite loop
+  }
   radio.openWritingPipe(address);
-  radio.setPALevel(RF24_PA_LOW);
+  radio.setAutoAck(true);
+  //radio.setDataRate(RF24_250KBPS);
+  //radio.setPALevel(RF24_PA_LOW);
 
   radio_data.joy1_X = 127;
   radio_data.joy1_Y = 127;
@@ -67,6 +70,7 @@ void setup()
   radio_data.pitch = 0;
   radio_data.roll = 0;
 
+  Serial.println("Setup OK");
 }
 
 
@@ -84,7 +88,7 @@ void loop()
     
     if(translatedMsg == "Motor Calibration")
     {
-      radio_data.calibrateMotors = 2;
+      //radio_data.calibrateMotors = 2;
       sendRadio = true;
     }
     else if(translatedMsg == "Stop Motors")
