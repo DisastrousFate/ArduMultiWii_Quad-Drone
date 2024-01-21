@@ -1,3 +1,4 @@
+
 //Include Libraries
 #include <SPI.h>
 #include <nRF24L01.h>
@@ -39,21 +40,42 @@ Data_Package radio_data;
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
+  Serial.println("Board Startup");
 
-  radio.begin();
-  radio.openWritingPipe(address);
-  radio.setAutoAck(false); // Ensure autoACK is enabled
+  if (!radio.begin()){
+    Serial.println("Radio hardware not responding!!");
+    while (1) {}
+  }
+
+  radio.openReadingPipe(0, address);
+  radio.setAutoAck(true); // Ensure autoACK is enabled
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_LOW);
-  radio.stopListening(); //Set module as transmitter
+  radio.startListening(); //Set module as transmitter
+
+  Serial.println(radio.getDataRate());
 
 }
 void loop()
 {
-  radio_readMsg();
-  Serial.println(radio_data.stopMotors);
-  Serial.println(radio_data.calibrateMotors);
+
+  if(radio.available())
+  {
+    Serial.println("radio seen");
+    radio.read(&radio_data, sizeof(Data_Package));
+
+    lastReceiveTime = millis();
+  }
+
+  currentTime = millis();
+  if(currentTime - lastReceiveTime > 1000)
+  {
+    resetData();
+  }
+
+  //Serial.println(radio_data.stopMotors);
+  //Serial.println(radio_data.calibrateMotors);
 
   if (radio_data.calibrateMotors == 2)
   {
@@ -61,8 +83,49 @@ void loop()
     motor_calibration();
   }
 
-  Serial.println(radio_data.stopMotors);
-  Serial.println(radio_data.calibrateMotors);
+  
+}
+
+int radio_readMsg()
+{ 
+  int isAvailable = false;
+  if(radio.available())
+  {
+    Serial.println("radio seen");
+    radio.read(&radio_data, sizeof(Data_Package));
+
+    lastReceiveTime = millis();
+
+    isAvailable = true;
+  }
+
+  currentTime = millis();
+  if(currentTime - lastReceiveTime > 1000)
+  {
+    resetData();
+  }
+  
+  return isAvailable;
+}
+
+void resetData() {
+  // Set initial default values
+  radio_data.joy1_X = 127;
+  radio_data.joy1_Y = 127;
+  radio_data.joy2_X = 127;
+  radio_data.joy2_Y = 127;
+  radio_data.j1Button = 1;
+  radio_data.j2Button = 1;
+  radio_data.pot1 = 1;
+  radio_data.pot2 = 1;
+  radio_data.tSwitch1 = 1;
+  radio_data.tSwitch2 = 1;
+  radio_data.stopMotors = 1;
+  radio_data.calibrateMotors = 1;
+  radio_data.button3 = 1;
+  radio_data.button4 = 1;
+  radio_data.pitch = 0;
+  radio_data.roll = 0;
 }
 
 void motor_calibration()
@@ -96,40 +159,4 @@ void motor_calibration()
   }
 
   Serial.println("Motor calibration Complete!");
-}
-
-void radio_readMsg()
-{
-  if(radio.available())
-  {
-    radio.read(&radio_data, sizeof(Data_Package));
-
-    lastReceiveTime = millis();
-  }
-
-  currentTime = millis();
-  if(currentTime - lastReceiveTime > 1000)
-  {
-    resetData();
-  }
-}
-
-void resetData() {
-  // Set initial default values
-  radio_data.joy1_X = 127;
-  radio_data.joy1_Y = 127;
-  radio_data.joy2_X = 127;
-  radio_data.joy2_Y = 127;
-  radio_data.j1Button = 1;
-  radio_data.j2Button = 1;
-  radio_data.pot1 = 1;
-  radio_data.pot2 = 1;
-  radio_data.tSwitch1 = 1;
-  radio_data.tSwitch2 = 1;
-  radio_data.stopMotors = 1;
-  radio_data.calibrateMotors = 1;
-  radio_data.button3 = 1;
-  radio_data.button4 = 1;
-  radio_data.pitch = 0;
-  radio_data.roll = 0;
 }
