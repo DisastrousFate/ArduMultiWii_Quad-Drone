@@ -87,7 +87,7 @@ void loop()
     
     if(translatedMsg == "Motor Calibration")
     {
-      //radio_data.calibrateMotors = 2;
+      radio_data.calibrateMotors = 2;
       sendRadio = true;
     }
     else if(translatedMsg == "Stop Motors")
