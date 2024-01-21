@@ -92,6 +92,7 @@ int radio_readMsg()
   if(radio.available())
   {
     Serial.println("radio seen");
+    Serial.println("git");
     radio.read(&radio_data, sizeof(Data_Package));
 
     lastReceiveTime = millis();
