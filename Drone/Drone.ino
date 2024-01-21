@@ -43,6 +43,11 @@ void setup()
   Serial.begin(9600);
   Serial.println("Board Startup");
 
+  pinMode(FL_MOTOR, OUTPUT);
+  pinMode(FR_MOTOR, OUTPUT);
+  pinMode(BR_MOTOR, OUTPUT);
+  pinMode(BL_MOTOR, OUTPUT);
+
   if (!radio.begin()){
     Serial.println("Radio hardware not responding!!");
     while (1) {}
@@ -54,7 +59,7 @@ void setup()
   radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
 
-  Serial.println(radio.getDataRate());
+  
 
 }
 void loop()
@@ -66,6 +71,20 @@ void loop()
     radio.read(&radio_data, sizeof(Data_Package));
 
     lastReceiveTime = millis();
+
+    //Serial.println(radio_data.stopMotors);
+    Serial.println(radio_data.calibrateMotors);
+    int toint = radio_data.calibrateMotors;
+    Serial.println(toint);
+
+    if (toint == 2)
+    {
+      Serial.println("Calibrate Motors");
+      motor_calibration();
+    }
+
+
+
   }
 
   currentTime = millis();
@@ -74,16 +93,7 @@ void loop()
     resetData();
   }
 
-  //Serial.println(radio_data.stopMotors);
-  Serial.println(radio_data.calibrateMotors);
-  int toint = radio_data.calibrateMotors;
-  Serial.println(toint);
-
-  if (toint == 2)
-  {
-    Serial.println("Calibrate Motors");
-    motor_calibration();
-  }
+  
 
   
 }
@@ -160,6 +170,11 @@ void motor_calibration()
     analogWrite(BL_MOTOR, i);
     delay(30);
   }
+
+  analogWrite(FL_MOTOR, 0);
+  analogWrite(FR_MOTOR, 0);
+  analogWrite(BR_MOTOR, 0);
+  analogWrite(BL_MOTOR, 0);
 
   Serial.println("Motor calibration Complete!");
 }
