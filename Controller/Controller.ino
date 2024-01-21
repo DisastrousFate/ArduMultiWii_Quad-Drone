@@ -103,7 +103,7 @@ void loop()
     radio_sendMsg();
   }
 
-  //resetData();
+  resetData();
 }
 
 void radio_sendMsg()

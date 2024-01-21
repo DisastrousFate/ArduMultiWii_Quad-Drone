@@ -75,9 +75,11 @@ void loop()
   }
 
   //Serial.println(radio_data.stopMotors);
-  //Serial.println(radio_data.calibrateMotors);
+  Serial.println(radio_data.calibrateMotors);
+  int toint = radio_data.calibrateMotors;
+  Serial.println(toint);
 
-  if (radio_data.calibrateMotors == 2)
+  if (toint == 2)
   {
     Serial.println("Calibrate Motors");
     motor_calibration();
