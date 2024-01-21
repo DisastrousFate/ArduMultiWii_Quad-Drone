@@ -50,8 +50,9 @@ void setup()
   }
   radio.openWritingPipe(address);
   radio.setAutoAck(true);
-  //radio.setDataRate(RF24_250KBPS);
-  //radio.setPALevel(RF24_PA_LOW);
+  radio.setDataRate(RF24_250KBPS);
+  radio.setPALevel(RF24_PA_LOW);
+  radio.stopListening();
 
   radio_data.joy1_X = 127;
   radio_data.joy1_Y = 127;
@@ -73,13 +74,11 @@ void setup()
   Serial.println("Setup OK");
 }
 
-
-
 void loop()
 {
   bool sendRadio = false;
   
-  if (Serial.available() > 0)
+  if (Serial.available())
   { 
     int msg = Serial.readString().toInt();
 
@@ -104,11 +103,12 @@ void loop()
     radio_sendMsg();
   }
 
-  resetData();
+  //resetData();
 }
 
 void radio_sendMsg()
 {
+  const char txt[] = "Hello World!";
   bool rslt = radio.write(&radio_data, sizeof(Data_Package));
   Serial.print("Data Sent ");
   if (rslt)
