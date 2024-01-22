@@ -85,8 +85,8 @@ void loop()
   if (Serial.available())
   { 
     int msg = Serial.readString().toInt();
-
     String translatedMsg = mesgDictionary[msg];
+
     Serial.println("Arduino Output: " + translatedMsg);
     
     if(translatedMsg == "Motor Calibration")
@@ -127,6 +127,8 @@ void radio_sendMsg()
     if (radio.isAckPayloadAvailable())
     {
       radio.read(&ack_batteryData, sizeof(ack_batteryData));
+      Serial.println("New ack data: ");
+      Serial.println(ack_batteryData[0]);
       newAck = true;
     }
     Serial.println("  Acknowledge received");

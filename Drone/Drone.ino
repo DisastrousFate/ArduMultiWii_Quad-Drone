@@ -78,9 +78,9 @@ void setup()
   radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
 
-  
-
+  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
 }
+
 void loop()
 {
   if(radio.available())

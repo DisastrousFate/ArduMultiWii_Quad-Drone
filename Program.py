@@ -124,7 +124,7 @@ class MainWindow(tk.Frame):
 
         self.btn_getBattery = tk.Button(master=self, text="Get Battery Info", bg="grey", fg="black")
         self.btn_getBattery.grid(row=5, column=0)
-        self.btn_getBattery.bind("<Button-1>", self.on_stopMotors)
+        self.btn_getBattery.bind("<Button-1>", self.on_getBattery)
 
         # "Y" to check arduino config
         t1 = threading.Thread(target=self.checkSettings)
