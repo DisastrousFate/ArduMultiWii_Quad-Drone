@@ -9,9 +9,22 @@
 #define BR_MOTOR 6
 #define BL_MOTOR 9
 
+// Compensation factor, which is inverse of VBAT = (150k / (150k + 150k))
+#define VBAT_DIVIDER_COMP ((33.0 + 100.0) / 33.0)
+// Interval voltage reference of 1.1V in mV
+#define BATTERY_VOLTAGE_REFERENCE_VALUE 1100
+// 10-bit resolution gives 1023 steps
+#define RESOLUTION_STEPS 1023
+// Combine together from a formula
+#define REAL_BATTERY_MV_PER_LSB (VBAT_DIVIDER_COMP * BATTERY_VOLTAGE_REFERENCE_VALUE / RESOLUTION_STEPS)
+
+#define BATTERY_PIN A0
+
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
 const byte address[6] = "50401";
+
+int ackData[2] = {109,-4000};
 
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
@@ -29,7 +42,7 @@ struct Data_Package {
   byte tSwitch2;
   byte stopMotors;
   byte calibrateMotors;
-  byte button3;
+  byte getbattery;
   byte button4;
   byte pitch;
   byte roll;
@@ -43,6 +56,9 @@ bool is_motor_calibration = false;
 
 void setup()
 {
+  // Set internal 1.1V voltage reference
+  analogReference(INTERNAL);
+
   Serial.begin(9600);
   Serial.println("Board Startup");
 
@@ -67,8 +83,12 @@ void setup()
 }
 void loop()
 {
-  if (radio_readMsg())
+  if(radio.available())
   {
+    radio.read(&radio_data, sizeof(Data_Package));
+    lastReceiveTime = millis();
+
+
 
     int int_calibrateMotors = radio_data.calibrateMotors;
     if (int_calibrateMotors == 2)
@@ -76,28 +96,23 @@ void loop()
       Serial.println("Calibrate Motors");
       motor_calibration();
     }
-    
+
     int int_stopMotors = radio_data.stopMotors;
     if (int_stopMotors == 2)
     {
       Serial.println("Stop Motors");
       stop_motors();
     }
-    
-  }
-  
-}
 
-int radio_readMsg()
-{ 
-  int isAvailable = false;
-  if(radio.available())
-  {
-    radio.read(&radio_data, sizeof(Data_Package));
+    int int_getBattery = radio_data.getbattery;
+    if (int_getBattery == 2)
+    {
+      Serial.println("Get Battery");
+      get_battery();
+    }
 
-    lastReceiveTime = millis();
 
-    isAvailable = true;
+
   }
 
   currentTime = millis();
@@ -106,7 +121,11 @@ int radio_readMsg()
     resetData();
   }
   
-  return isAvailable;
+}
+
+void radio_sendAckPayload()
+{
+  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
 }
 
 void resetData() {
@@ -123,7 +142,7 @@ void resetData() {
   radio_data.tSwitch2 = 1;
   radio_data.stopMotors = 1;
   radio_data.calibrateMotors = 1;
-  radio_data.button3 = 1;
+  radio_data.getbattery = 1;
   radio_data.button4 = 1;
   radio_data.pitch = 0;
   radio_data.roll = 0;
@@ -183,4 +202,10 @@ void stop_motors()
   analogWrite(FR_MOTOR, 0);
   analogWrite(BR_MOTOR, 0);
   analogWrite(BL_MOTOR, 0);
+}
+
+void get_battery()
+{
+  Serial.println(analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB);
+  radio_sendAckPayload();
 }

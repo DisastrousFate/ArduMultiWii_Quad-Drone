@@ -14,7 +14,8 @@ class Controller:
         self.mesgDictionary = {
             "Check Connection" : 1,
             "Motor Calibration" : 2,
-            "Stop Motors" : 3
+            "Stop Motors" : 3,
+            "Get Battery" : 4,
         }
         
     def view_config(self, *args):
@@ -121,6 +122,10 @@ class MainWindow(tk.Frame):
         self.btn_stopMotors.grid(row=4, column=1)
         self.btn_stopMotors.bind("<Button-1>", self.on_stopMotors)
 
+        self.btn_getBattery = tk.Button(master=self, text="Get Battery Info", bg="grey", fg="black")
+        self.btn_getBattery.grid(row=5, column=0)
+        self.btn_getBattery.bind("<Button-1>", self.on_stopMotors)
+
         # "Y" to check arduino config
         t1 = threading.Thread(target=self.checkSettings)
         t1.start()
@@ -154,6 +159,9 @@ class MainWindow(tk.Frame):
     
     def on_stopMotors(self, *args):
         self.arduino.send("Stop Motors")
+
+    def on_getBattery(self, *args):
+        self.arduino.send("Get Battery")
 
     def checkSettings(self, *args):
         while True:

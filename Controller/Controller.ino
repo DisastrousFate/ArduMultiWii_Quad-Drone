@@ -8,11 +8,14 @@ String mesgDictionary[] = {
   "placeholder",
   "Check Connection",
   "Motor Calibration",
-  "Stop Motors"
+  "Stop Motors",
+  "Get Battery",
 };
 
 //create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
+int ack_batteryData[2] = {-1, -1};
+bool newAck = false;
 
 // Max size of this struct is 32 bytes - NRF24L01 buffer limit
 struct Data_Package {
@@ -28,7 +31,7 @@ struct Data_Package {
   byte tSwitch2;
   byte stopMotors;
   byte calibrateMotors;
-  byte button3;
+  byte getbattery;
   byte button4;
   byte pitch;
   byte roll;
@@ -50,6 +53,7 @@ void setup()
   }
   radio.openWritingPipe(address);
   radio.setAutoAck(true);
+  radio.enableAckPayload();
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_LOW);
   radio.stopListening();
@@ -66,7 +70,7 @@ void setup()
   radio_data.tSwitch2 = 1;
   radio_data.stopMotors = 1;
   radio_data.calibrateMotors = 1;
-  radio_data.button3 = 1;
+  radio_data.getbattery = 1;
   radio_data.button4 = 1;
   radio_data.pitch = 0;
   radio_data.roll = 0;
@@ -96,12 +100,20 @@ void loop()
       sendRadio = true;
     }
 
+    if(translatedMsg == "Get Battery")
+    {
+      radio_data.getbattery = 2;
+      sendRadio = true;
+    }
+
   }
 
   if (sendRadio)
   {
     radio_sendMsg();
   }
+
+  showBattery();
 
   resetData();
 }
@@ -112,11 +124,28 @@ void radio_sendMsg()
   Serial.print("Data Sent ");
   if (rslt)
   {
+    if (radio.isAckPayloadAvailable())
+    {
+      radio.read(&ack_batteryData, sizeof(ack_batteryData));
+      newAck = true;
+    }
     Serial.println("  Acknowledge received");
   }
   else {
     Serial.println("  Tx failed");
   }
+}
+
+void showBattery()
+{
+  if (newAck == true) {
+        Serial.print("  Acknowledge data ");
+        Serial.print(ack_batteryData[0]);
+        Serial.print(", ");
+        Serial.println(ack_batteryData[1]);
+        Serial.println();
+        newAck = false;
+    }
 }
 
 void resetData() {
@@ -133,7 +162,7 @@ void resetData() {
   radio_data.tSwitch2 = 1;
   radio_data.stopMotors = 1;
   radio_data.calibrateMotors = 1;
-  radio_data.button3 = 1;
+  radio_data.getbattery = 1;
   radio_data.button4 = 1;
   radio_data.pitch = 0;
   radio_data.roll = 0;
