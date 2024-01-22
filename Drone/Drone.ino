@@ -38,6 +38,9 @@ struct Data_Package {
 
 Data_Package radio_data;
 
+bool is_motor_calibration = false;
+
+
 void setup()
 {
   Serial.begin(9600);
@@ -64,37 +67,24 @@ void setup()
 }
 void loop()
 {
-
-  if(radio.available())
+  if (radio_readMsg())
   {
-    Serial.println("radio seen");
-    radio.read(&radio_data, sizeof(Data_Package));
 
-    lastReceiveTime = millis();
-
-    //Serial.println(radio_data.stopMotors);
-    Serial.println(radio_data.calibrateMotors);
-    int toint = radio_data.calibrateMotors;
-    Serial.println(toint);
-
-    if (toint == 2)
+    int int_calibrateMotors = radio_data.calibrateMotors;
+    if (int_calibrateMotors == 2)
     {
       Serial.println("Calibrate Motors");
       motor_calibration();
     }
-
-
-
+    
+    int int_stopMotors = radio_data.stopMotors;
+    if (int_stopMotors == 2)
+    {
+      Serial.println("Stop Motors");
+      stop_motors();
+    }
+    
   }
-
-  currentTime = millis();
-  if(currentTime - lastReceiveTime > 1000)
-  {
-    resetData();
-  }
-
-  
-
   
 }
 
@@ -103,8 +93,6 @@ int radio_readMsg()
   int isAvailable = false;
   if(radio.available())
   {
-    Serial.println("radio seen");
-    Serial.println("git");
     radio.read(&radio_data, sizeof(Data_Package));
 
     lastReceiveTime = millis();
@@ -143,6 +131,8 @@ void resetData() {
 
 void motor_calibration()
 {
+  is_motor_calibration = true;
+
   analogWrite(FL_MOTOR, 255);
   analogWrite(FR_MOTOR, 255);
   analogWrite(BR_MOTOR, 255);
@@ -177,4 +167,20 @@ void motor_calibration()
   analogWrite(BL_MOTOR, 0);
 
   Serial.println("Motor calibration Complete!");
+  is_motor_calibration = false;
+}
+
+void stop_motors()
+{
+  while(is_motor_calibration)
+  {
+    analogWrite(FL_MOTOR, 0);
+    analogWrite(FR_MOTOR, 0);
+    analogWrite(BR_MOTOR, 0);
+    analogWrite(BL_MOTOR, 0);
+  }
+  analogWrite(FL_MOTOR, 0);
+  analogWrite(FR_MOTOR, 0);
+  analogWrite(BR_MOTOR, 0);
+  analogWrite(BL_MOTOR, 0);
 }

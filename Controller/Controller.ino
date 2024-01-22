@@ -108,7 +108,6 @@ void loop()
 
 void radio_sendMsg()
 {
-  const char txt[] = "Hello World!";
   bool rslt = radio.write(&radio_data, sizeof(Data_Package));
   Serial.print("Data Sent ");
   if (rslt)
