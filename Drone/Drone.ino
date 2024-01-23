@@ -79,7 +79,7 @@ void setup()
   radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
 
-  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
+  //radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
 }
 
 void loop()
@@ -110,7 +110,7 @@ void loop()
     if (int_getBattery == 2)
     {
       Serial.println("Get Battery");
-      get_battery();
+      //get_battery();
     }
 
 
