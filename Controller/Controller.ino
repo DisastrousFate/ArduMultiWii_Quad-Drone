@@ -126,6 +126,7 @@ void radio_sendMsg()
   Serial.print("Data Sent ");
   if (rslt)
   {
+    Serial.println(radio.isAckPayloadAvailable());
     if (radio.isAckPayloadAvailable())
     {
       radio.read(&ack_batteryData, sizeof(ack_batteryData));
