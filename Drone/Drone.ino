@@ -22,8 +22,7 @@
 
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
-const byte address[6] = "50401";
-
+const byte address[5] = {'R','x','A','A','A'};
 int ackData[2] = {109,-4000};
 
 unsigned long lastReceiveTime = 0;
@@ -73,13 +72,12 @@ void setup()
   }
 
   radio.openReadingPipe(0, address);
-  radio.setAutoAck(false); // Ensure autoACK is enabled
-  radio.enableAckPayload();
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
 
-  //radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
+  radio.enableAckPayload();
+  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
 }
 
 void loop()

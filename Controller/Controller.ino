@@ -41,7 +41,7 @@ struct Data_Package {
 Data_Package radio_data; //Create a variable with the above structure
 
 //address through which two modules communicate.
-const byte address[6] = "50401";
+const byte address[5] = {'R','x','A','A','A'};
 
 void setup()
 {
