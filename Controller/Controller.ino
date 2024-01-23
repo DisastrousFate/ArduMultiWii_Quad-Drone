@@ -57,8 +57,8 @@ void setup()
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_LOW);
   radio.stopListening();
-  //radio.setRetries(5,5); // delay, count
-  // 5 gives a 1500 µsec delay which is needed for a 32 byte ackPayload
+  radio.setRetries(5,5); // delay, count
+  //5 gives a 1500 µsec delay which is needed for a 32 byte ackPayload
 
   radio_data.joy1_X = 127;
   radio_data.joy1_Y = 127;
