@@ -54,7 +54,7 @@ void setup()
   radio.openWritingPipe(address);
   radio.enableAckPayload();
   radio.setDataRate(RF24_250KBPS);
-  //radio.setPALevel(RF24_PA_LOW);
+  radio.setPALevel(RF24_PA_LOW);
   radio.setRetries(5,5); // delay, count
   //5 gives a 1500 µsec delay which is needed for a 32 byte ackPayload
 

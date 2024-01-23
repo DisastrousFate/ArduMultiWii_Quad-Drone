@@ -73,7 +73,7 @@ void setup()
 
   radio.openReadingPipe(1, address);
   radio.setDataRate(RF24_250KBPS);
-  //radio.setPALevel(RF24_PA_LOW);
+  radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
 
   radio.enableAckPayload();
@@ -86,7 +86,7 @@ void loop()
   {
     radio.read(&radio_data, sizeof(Data_Package));
     updateReplyData();
-        
+
     lastReceiveTime = millis();
 
 
