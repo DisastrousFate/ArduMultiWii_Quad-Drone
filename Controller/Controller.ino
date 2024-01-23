@@ -52,11 +52,13 @@ void setup()
     while (1) {}  // hold in infinite loop
   }
   radio.openWritingPipe(address);
-  radio.setAutoAck(true);
+  radio.setAutoAck(false);
   radio.enableAckPayload();
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_LOW);
   radio.stopListening();
+  //radio.setRetries(5,5); // delay, count
+  // 5 gives a 1500 µsec delay which is needed for a 32 byte ackPayload
 
   radio_data.joy1_X = 127;
   radio_data.joy1_Y = 127;

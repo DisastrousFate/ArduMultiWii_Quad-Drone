@@ -73,7 +73,8 @@ void setup()
   }
 
   radio.openReadingPipe(0, address);
-  radio.setAutoAck(true); // Ensure autoACK is enabled
+  radio.setAutoAck(false); // Ensure autoACK is enabled
+  radio.enableAckPayload();
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
