@@ -14,6 +14,7 @@ String mesgDictionary[] = {
 
 //create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
+const byte address[5] = {'R','x','A','A','A'};
 int ack_batteryData[2] = {-1, -1};
 bool newAck = false;
 
@@ -40,8 +41,7 @@ struct Data_Package {
 
 Data_Package radio_data; //Create a variable with the above structure
 
-//address through which two modules communicate.
-const byte address[5] = {'R','x','A','A','A'};
+
 
 void setup()
 {
@@ -52,11 +52,9 @@ void setup()
     while (1) {}  // hold in infinite loop
   }
   radio.openWritingPipe(address);
-  radio.setAutoAck(false);
   radio.enableAckPayload();
   radio.setDataRate(RF24_250KBPS);
-  radio.setPALevel(RF24_PA_LOW);
-  radio.stopListening();
+  //radio.setPALevel(RF24_PA_LOW);
   radio.setRetries(5,5); // delay, count
   //5 gives a 1500 µsec delay which is needed for a 32 byte ackPayload
 
@@ -126,7 +124,7 @@ void radio_sendMsg()
   Serial.print("Data Sent ");
   if (rslt)
   {
-    Serial.println(radio.isAckPayloadAvailable());
+    Serial.println("isPayloadAvailable"+ String(radio.isAckPayloadAvailable()));
     if (radio.isAckPayloadAvailable())
     {
       radio.read(&ack_batteryData, sizeof(ack_batteryData));

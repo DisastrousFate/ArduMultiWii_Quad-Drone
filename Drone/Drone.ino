@@ -71,9 +71,9 @@ void setup()
     while (1) {}
   }
 
-  radio.openReadingPipe(0, address);
+  radio.openReadingPipe(1, address);
   radio.setDataRate(RF24_250KBPS);
-  radio.setPALevel(RF24_PA_LOW);
+  //radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
 
   radio.enableAckPayload();
@@ -85,7 +85,8 @@ void loop()
   if(radio.available())
   {
     radio.read(&radio_data, sizeof(Data_Package));
-    radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
+    updateReplyData();
+        
     lastReceiveTime = millis();
 
 
@@ -122,6 +123,19 @@ void loop()
   }
   
 }
+
+void updateReplyData() {
+    ackData[0] -= 1;
+    ackData[1] -= 1;
+    if (ackData[0] < 100) {
+        ackData[0] = 109;
+    }
+    if (ackData[1] < -4009) {
+        ackData[1] = -4000;
+    }
+    radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
+}
+
 
 void radio_sendAckPayload()
 {
