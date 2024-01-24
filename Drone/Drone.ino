@@ -84,7 +84,7 @@ void setup()
   radio.startListening(); //Set module as transmitter
 
   radio.enableAckPayload();
-  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
+  radio.writeAckPayload(1, &ackData, sizeof(Ack_Package)); // pre-load data
 }
 
 void loop()
@@ -132,7 +132,7 @@ void loop()
   if (sendAck == true)
   {
     ackData.timeSignature = lastTime;
-    radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
+    radio.writeAckPayload(1, &ackData, sizeof(Ack_Package)); // load the payload for the next time
   }
   
 }

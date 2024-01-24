@@ -130,7 +130,7 @@ void radio_sendMsg()
   {
     if (radio.isAckPayloadAvailable())
     {
-      radio.read(&ackData, sizeof(ackData));
+      radio.read(&ackData, sizeof(Ack_Package));
 
       showAck();
     }
