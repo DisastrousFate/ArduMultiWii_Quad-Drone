@@ -23,7 +23,7 @@
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
 const byte address[5] = {'R','x','A','A','A'};
-int ackData[2] = {109,-4000};
+//int ackData[2] = {109,-4000};
 
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
@@ -47,10 +47,17 @@ struct Data_Package {
   byte roll;
 
 };
-
 Data_Package radio_data;
 
+struct Ack_Package {
+  byte batteryVoltage;
+  byte timeSignature;
+};
+Ack_Package ackData;
+
+
 bool is_motor_calibration = false;
+int lastTime = 1;
 
 
 void setup()
@@ -82,10 +89,11 @@ void setup()
 
 void loop()
 {
+  bool sendAck = false;
+
   if(radio.available())
   {
     radio.read(&radio_data, sizeof(Data_Package));
-    updateReplyData();
 
     lastReceiveTime = millis();
 
@@ -109,10 +117,9 @@ void loop()
     if (int_getBattery == 2)
     {
       Serial.println("Get Battery");
-      //get_battery();
+      get_battery();
+      sendAck = true;
     }
-
-
 
   }
 
@@ -121,25 +128,13 @@ void loop()
   {
     resetData();
   }
-  
-}
 
-void updateReplyData() {
-    ackData[0] -= 1;
-    ackData[1] -= 1;
-    if (ackData[0] < 100) {
-        ackData[0] = 109;
-    }
-    if (ackData[1] < -4009) {
-        ackData[1] = -4000;
-    }
+  if (sendAck == true)
+  {
+    ackData.timeSignature = lastTime;
     radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
-}
-
-
-void radio_sendAckPayload()
-{
-  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
+  }
+  
 }
 
 void resetData() {
@@ -220,6 +215,8 @@ void stop_motors()
 
 void get_battery()
 {
-  Serial.println(analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB);
-  radio_sendAckPayload();
+  int battery = analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB;
+
+  ackData.batteryVoltage = battery;
+  Serial.println(battery);
 }

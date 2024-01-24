@@ -15,8 +15,8 @@ String mesgDictionary[] = {
 //create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
 const byte address[5] = {'R','x','A','A','A'};
-int ack_batteryData[2] = {-1, -1};
-bool newAck = false;
+//int ack_batteryData[2] = {-1, -1};
+//bool newAck = false;
 
 // Max size of this struct is 32 bytes - NRF24L01 buffer limit
 struct Data_Package {
@@ -38,8 +38,14 @@ struct Data_Package {
   byte roll;
 
 };
-
 Data_Package radio_data; //Create a variable with the above structure
+
+struct Ack_Package {
+  byte batteryVoltage;
+  byte timeSignature;
+};
+Ack_Package ackData;
+
 
 
 
@@ -113,8 +119,6 @@ void loop()
     radio_sendMsg();
   }
 
-  showBattery();
-
   resetData();
 }
 
@@ -124,13 +128,11 @@ void radio_sendMsg()
   Serial.print("Data Sent ");
   if (rslt)
   {
-    Serial.println("isPayloadAvailable"+ String(radio.isAckPayloadAvailable()));
     if (radio.isAckPayloadAvailable())
     {
-      radio.read(&ack_batteryData, sizeof(ack_batteryData));
-      Serial.println("New ack data: ");
-      Serial.println(ack_batteryData[0]);
-      newAck = true;
+      radio.read(&ackData, sizeof(ackData));
+
+      showAck();
     }
     Serial.println("  Acknowledge received");
   }
@@ -139,16 +141,10 @@ void radio_sendMsg()
   }
 }
 
-void showBattery()
+void showAck()
 {
-  if (newAck == true) {
-        Serial.print("  Acknowledge data ");
-        Serial.print(ack_batteryData[0]);
-        Serial.print(", ");
-        Serial.println(ack_batteryData[1]);
-        Serial.println();
-        newAck = false;
-    }
+  Serial.println("Battery Voltage: " + ackData.batteryVoltage);
+  Serial.println("ACK Signature: " + ackData.timeSignature);
 }
 
 void resetData() {
@@ -169,4 +165,5 @@ void resetData() {
   radio_data.button4 = 1;
   radio_data.pitch = 0;
   radio_data.roll = 0;
+
 }
