@@ -95,7 +95,7 @@ void loop()
   if(radio.available())
   {
     radio.read(&radio_data, sizeof(Data_Package));
-    radio.writeAckPayload(1, &ackData, sizeof(ackData));
+    //radio.writeAckPayload(1, &ackData, sizeof(ackData));
 
     lastReceiveTime = millis();
 
@@ -136,6 +136,7 @@ void loop()
     //ackData.timeSignature = lastTime;
     int size = sizeof(ackData);
     Serial.println(size);
+    Serial.println(ackData[0]);
     radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
   }
   
@@ -220,7 +221,8 @@ void stop_motors()
 void get_battery()
 {
   int battery = analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB;
-
+  Serial.println(ackData[0]);
   ackData[0] = battery;
+  
   Serial.println(battery);
 }
