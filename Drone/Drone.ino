@@ -23,7 +23,7 @@
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
 const byte address[5] = {'R','x','A','A','A'};
-//int ackData[2] = {109,-4000};
+int ackData[2] = {109,-4000};
 
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
@@ -53,7 +53,7 @@ struct Ack_Package {
   byte batteryVoltage;
   byte timeSignature;
 };
-Ack_Package ackData;
+//Ack_Package ackData;
 
 
 bool is_motor_calibration = false;
@@ -84,7 +84,7 @@ void setup()
   radio.startListening(); //Set module as transmitter
 
   radio.enableAckPayload();
-  radio.writeAckPayload(1, &ackData, sizeof(Ack_Package)); // pre-load data
+  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
 }
 
 void loop()
@@ -94,6 +94,7 @@ void loop()
   if(radio.available())
   {
     radio.read(&radio_data, sizeof(Data_Package));
+    radio.writeAckPayload(1, &ackData, sizeof(ackData));
 
     lastReceiveTime = millis();
 
@@ -131,8 +132,8 @@ void loop()
 
   if (sendAck == true)
   {
-    ackData.timeSignature = lastTime;
-    radio.writeAckPayload(1, &ackData, sizeof(Ack_Package)); // load the payload for the next time
+    //ackData.timeSignature = lastTime;
+    radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
   }
   
 }
@@ -217,6 +218,6 @@ void get_battery()
 {
   int battery = analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB;
 
-  ackData.batteryVoltage = battery;
+  //ackData.batteryVoltage = battery;
   Serial.println(battery);
 }

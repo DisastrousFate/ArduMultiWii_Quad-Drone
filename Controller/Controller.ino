@@ -15,7 +15,7 @@ String mesgDictionary[] = {
 //create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
 const byte address[5] = {'R','x','A','A','A'};
-//int ack_batteryData[2] = {-1, -1};
+int ackData[2] = {-1, -1};
 //bool newAck = false;
 
 // Max size of this struct is 32 bytes - NRF24L01 buffer limit
@@ -44,7 +44,7 @@ struct Ack_Package {
   byte batteryVoltage;
   byte timeSignature;
 };
-Ack_Package ackData;
+//Ack_Package ackData;
 
 
 
@@ -130,7 +130,7 @@ void radio_sendMsg()
   {
     if (radio.isAckPayloadAvailable())
     {
-      radio.read(&ackData, sizeof(Ack_Package));
+      radio.read(&ackData, sizeof(ackData));
 
       showAck();
     }
@@ -143,8 +143,11 @@ void radio_sendMsg()
 
 void showAck()
 {
-  Serial.println("Battery Voltage: " + ackData.batteryVoltage);
-  Serial.println("ACK Signature: " + ackData.timeSignature);
+  //Serial.println("Battery Voltage: " + ackData.batteryVoltage);
+  //Serial.println("ACK Signature: " + ackData.timeSignature);
+  Serial.println("Data: ");
+  Serial.print(ackData[0]);
+  Serial.println(ackData[0]);
 }
 
 void resetData() {
