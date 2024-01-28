@@ -124,8 +124,10 @@ void loop()
 
 void radio_sendMsg()
 {
+  int size = sizeof(radio_data);
+  Serial.println(size);
   bool rslt = radio.write(&radio_data, sizeof(Data_Package));
-  Serial.print("Data Sent ");
+  Serial.println("Data Sent ");
   if (rslt)
   {
     if (radio.isAckPayloadAvailable())
@@ -145,8 +147,8 @@ void showAck()
 {
   //Serial.println("Battery Voltage: " + ackData.batteryVoltage);
   //Serial.println("ACK Signature: " + ackData.timeSignature);
-  Serial.println("Data: ");
-  Serial.print(ackData[0]);
+  Serial.print("Battery Voltage: ");
+  Serial.println(ackData[0]);
   Serial.println(ackData[1]);
 }
 

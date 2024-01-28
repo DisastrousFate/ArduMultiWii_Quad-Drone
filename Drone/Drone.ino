@@ -23,7 +23,8 @@
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
 const byte address[5] = {'R','x','A','A','A'};
-int ackData[2] = {109,-4000};
+int ackData[2] = {109,
+                -4000};
 
 unsigned long lastReceiveTime = 0;
 unsigned long currentTime = 0;
@@ -220,6 +221,6 @@ void get_battery()
 {
   int battery = analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB;
 
-  //ackData.batteryVoltage = battery;
+  ackData[0] = battery;
   Serial.println(battery);
 }
