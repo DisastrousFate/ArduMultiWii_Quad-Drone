@@ -171,4 +171,6 @@ void resetData() {
   radio_data.pitch = 0;
   radio_data.roll = 0;
 
+  ackData[0] = -1;
+  ackData[1] = -1;
 }
