@@ -133,6 +133,8 @@ void loop()
   if (sendAck == true)
   {
     //ackData.timeSignature = lastTime;
+    int size = sizeof(ackData);
+    Serial.println(size);
     radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
   }
   

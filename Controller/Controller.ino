@@ -147,7 +147,7 @@ void showAck()
   //Serial.println("ACK Signature: " + ackData.timeSignature);
   Serial.println("Data: ");
   Serial.print(ackData[0]);
-  Serial.println(ackData[0]);
+  Serial.println(ackData[1]);
 }
 
 void resetData() {
