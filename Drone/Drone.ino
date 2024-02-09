@@ -218,18 +218,6 @@ void stop_motors()
   analogWrite(BL_MOTOR, 0);
 }
 
-// Compensation factor, which is inverse of VBAT = (150k / (150k + 150k))
-#define VBAT_DIVIDER_COMP ((33.0 + 100.0) / 33.0)
-// Interval voltage reference of 1.1V in mV
-#define BATTERY_VOLTAGE_REFERENCE_VALUE 1100
-// 10-bit resolution gives 1023 steps
-#define RESOLUTION_STEPS 1023
-// Combine together from a formula
-#define REAL_BATTERY_MV_PER_LSB (VBAT_DIVIDER_COMP * BATTERY_VOLTAGE_REFERENCE_VALUE / RESOLUTION_STEPS)
-
-#define BATTERY_PIN A0
-
-
 void get_battery()
 {
 
