@@ -1,5 +1,6 @@
 {
-    "sketch": "Controller\\Controller.ino",
-    "board": "arduino:avr:uno",
-    "port": "COM5"
+    "sketch": "BattV\\BattV.ino",
+    "board": "arduino:avr:pro",
+    "port": "COM5",
+    "configuration": "cpu=16MHzatmega328"
 }
