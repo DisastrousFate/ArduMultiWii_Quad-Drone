@@ -20,6 +20,10 @@
 
 #define BATTERY_PIN A0
 
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,  16, 2);
+
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
 const byte address[5] = {'R','x','A','A','A'};
@@ -86,10 +90,23 @@ void setup()
 
   radio.enableAckPayload();
   radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
+
+  //initialize lcd screen
+  lcd.init();
+  // turn on the backlight
+  lcd.backlight();
+
+  lcd.setCursor(0,0);
+  lcd.print("hello");
 }
 
 void loop()
 {
+  //delay(500);
+  //lcd.clear();
+  //lcd.setCursor(0,0);
+  //lcd.print(analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB);
+
   bool sendAck = false;
 
   if(radio.available())
@@ -233,6 +250,11 @@ void get_battery()
   Serial.print("AckData[0]: ");
   Serial.print(ackData[0], 3);
   Serial.println(" V");
+
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB);
+  
 
   /*Serial.println(analogRead(BATTERY_PIN));
   int battery = analogRead(BATTERY_PIN) * REAL_BATTERY_MV_PER_LSB;
