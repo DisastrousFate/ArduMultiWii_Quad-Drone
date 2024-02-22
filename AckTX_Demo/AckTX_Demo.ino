@@ -3,12 +3,12 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-
+#include <printf.h>
 
 #define CE_PIN   9
 #define CSN_PIN 8
 
-const byte slaveAddress[5] = {'R','x','A','A','A'};
+const byte slaveAddress[6] = "toad0";
 
 RF24 radio(CE_PIN, CSN_PIN); // Create a Radio
 
@@ -26,17 +26,21 @@ unsigned long txIntervalMillis = 1000; // send once per second
 void setup() {
 
     Serial.begin(9600);
+    printf_begin();
     Serial.println(F("Source File /mnt/sdb1/SGT-Prog/Arduino/ForumDemos/nRF24Tutorial/SimpleTxAckPayload.ino"));
     Serial.println("SimpleTxAckPayload Starting");
 
     radio.begin();
+    
     radio.setDataRate( RF24_250KBPS );
 
     radio.enableAckPayload();
-
+    radio.setPALevel(RF24_PA_LOW);
     radio.setRetries(5,5); // delay, count
                                        // 5 gives a 1500 µsec delay which is needed for a 32 byte ackPayload
+    
     radio.openWritingPipe(slaveAddress);
+    radio.printDetails();
 }
 
 //=============

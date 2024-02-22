@@ -14,8 +14,8 @@ String mesgDictionary[] = {
 
 //create an RF24 object
 RF24 radio(9, 8);  // CE, CSN
-const byte address[5] = {'R','x','A','A','A'};
-float ackData[2] = {-1, -1};
+const byte address[6] = "toad0";
+int ackData[2] = {-1, -1};
 //bool newAck = false;
 
 // Max size of this struct is 32 bytes - NRF24L01 buffer limit

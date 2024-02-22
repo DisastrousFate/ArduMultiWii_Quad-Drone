@@ -22,7 +22,7 @@
 
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
-const byte address[5] = {'R','x','A','A','A'};
+const byte address[6] = "toad0";
 int ackData[2] = {109,
                 -4000};
 
