@@ -3,58 +3,16 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include "motor.h"
-
-// Compensation factor, which is inverse of VBAT = (150k / (150k + 150k))
-#define VBAT_DIVIDER_COMP ((33.0 + 100.0) / 33.0)
-// Interval voltage reference of 1.1V in mV
-#define BATTERY_VOLTAGE_REFERENCE_VALUE 1100
-// 10-bit resolution gives 1023 steps
-#define RESOLUTION_STEPS 1023
-// Combine together from a formula
-#define REAL_BATTERY_MV_PER_LSB (VBAT_DIVIDER_COMP * BATTERY_VOLTAGE_REFERENCE_VALUE / RESOLUTION_STEPS)
+#include "radio.h"
 
 #define BATTERY_PIN A0
-
-//create an RF24 object
-RF24 radio(7, 8);  // CE, CSN
-const byte address[6] = "toad0";
-int ackData[2] = {109,
-                -4000};
-
-unsigned long lastReceiveTime = 0;
-unsigned long currentTime = 0;
-
-struct Data_Package {
-  byte joy1_X;
-  byte joy1_Y;
-  byte j1Button;
-  byte joy2_X;
-  byte joy2_Y;
-  byte j2Button;
-  byte pot1;
-  byte pot2;
-  byte tSwitch1;
-  byte tSwitch2;
-  byte stopMotors;
-  byte calibrateMotors;
-  byte getbattery;
-  byte button4;
-  byte pitch;
-  byte roll;
-
-};
-Data_Package radio_data;
-
-struct Ack_Package {
-  byte batteryVoltage;
-  byte timeSignature;
-};
-//Ack_Package ackData;
-
+#define VBAT_DIVIDER_COMP ((33.0 + 100.0) / 33.0)
+#define BATTERY_VOLTAGE_REFERENCE_VALUE 1100
+#define RESOLUTION_STEPS 1023
+#define REAL_BATTERY_MV_PER_LSB (VBAT_DIVIDER_COMP * BATTERY_VOLTAGE_REFERENCE_VALUE / RESOLUTION_STEPS)
 
 bool is_motor_calibration = false;
 int lastTime = 1;
-
 
 void setup()
 {
@@ -66,89 +24,40 @@ void setup()
 
   setupMotors();
 
-  if (!radio.begin()){
-    Serial.println("Radio hardware not responding!!");
-    while (1) {}
-  }
-
-  radio.openReadingPipe(1, address);
-  radio.setDataRate(RF24_250KBPS);
-  radio.setPALevel(RF24_PA_LOW);
-  radio.startListening(); //Set module as transmitter
-
-  radio.enableAckPayload();
-  radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
+  setupRadio();
 }
 
 void loop()
 {
+  radio_data = checkRadio();
   bool sendAck = false;
+  int int_calibrateMotors = radio_data.calibrateMotors;
 
-  if(radio.available())
+  if (int_calibrateMotors == 2)
   {
-    radio.read(&radio_data, sizeof(Data_Package));
-
-    lastReceiveTime = millis();
-
-    int int_calibrateMotors = radio_data.calibrateMotors;
-    if (int_calibrateMotors == 2)
-    {
-      Serial.println("Calibrate Motors");
-      calibrateMotors();
-    }
-
-    int int_stopMotors = radio_data.stopMotors;
-    if (int_stopMotors == 2)
-    {
-      Serial.println("Stop Motors");
-      stopMotors();
-    }
-
-    int int_getBattery = radio_data.getbattery;
-    if (int_getBattery == 2)
-    {
-      Serial.println("Get Battery");
-      get_battery();
-      sendAck = true;
-    }
-
+    Serial.println("Calibrate Motors");
+    calibrateMotors();
   }
 
-  currentTime = millis();
-  if(currentTime - lastReceiveTime > 1000)
+  int int_stopMotors = radio_data.stopMotors;
+  if (int_stopMotors == 2)
   {
-    resetData();
+    Serial.println("Stop Motors");
+    stopMotors();
+  }
+
+  int int_getBattery = radio_data.getbattery;
+  if (int_getBattery == 2)
+  {
+    Serial.println("Get Battery");
+    get_battery();
+    sendAck = true;
   }
 
   if (sendAck == true)
   {
-    //ackData.timeSignature = lastTime;
-    int size = sizeof(ackData);
-    Serial.println(size);
-    Serial.println(ackData[0]);
-    radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
+    send_Ack();
   }
-  
-}
-
-void resetData() {
-  // Set initial default values
-  radio_data.joy1_X = 127;
-  radio_data.joy1_Y = 127;
-  radio_data.joy2_X = 127;
-  radio_data.joy2_Y = 127;
-  radio_data.j1Button = 1;
-  radio_data.j2Button = 1;
-  radio_data.pot1 = 1;
-  radio_data.pot2 = 1;
-  radio_data.tSwitch1 = 1;
-  radio_data.tSwitch2 = 1;
-  radio_data.stopMotors = 1;
-  radio_data.calibrateMotors = 1;
-  radio_data.getbattery = 1;
-  radio_data.button4 = 1;
-  radio_data.pitch = 0;
-  radio_data.roll = 0;
 }
 
 void get_battery()
