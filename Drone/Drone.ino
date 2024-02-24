@@ -35,28 +35,32 @@ void loop()
   bool sendAck = false;
 
   radio_data = checkRadio();
-  lastReceiveTime = millis();
+  if (sizeof(radio_data) == sizeof(Data_Package)) {
+    // radio_data exists
 
-  int int_calibrateMotors = radio_data.calibrateMotors;
-  if (int_calibrateMotors == 2)
-  {
-    Serial.println("Calibrate Motors");
-    calibrateMotors();
-  }
+    lastReceiveTime = millis();
 
-  int int_stopMotors = radio_data.stopMotors;
-  if (int_stopMotors == 2)
-  {
-    Serial.println("Stop Motors");
-    stopMotors();
-  }
+    int int_calibrateMotors = radio_data.calibrateMotors;
+    if (int_calibrateMotors == 2)
+    {
+      Serial.println("Calibrate Motors");
+      calibrateMotors();
+    }
 
-  int int_getBattery = radio_data.getbattery;
-  if (int_getBattery == 2)
-  {
-    Serial.println("Get Battery");
-    get_battery();
-    sendAck = true;
+    int int_stopMotors = radio_data.stopMotors;
+    if (int_stopMotors == 2)
+    {
+      Serial.println("Stop Motors");
+      stopMotors();
+    }
+
+    int int_getBattery = radio_data.getbattery;
+    if (int_getBattery == 2)
+    {
+      Serial.println("Get Battery");
+      get_battery();
+      sendAck = true;
+    }
   }
 
   if (sendAck == true)
@@ -69,6 +73,7 @@ void loop()
   {
     resetData();
   }
+  
 }
 
 void get_battery()
