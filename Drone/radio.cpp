@@ -7,11 +7,6 @@ int ackData[2] = {109, -4000};
 
 Data_Package radio_data;
 
-unsigned long lastReceiveTime = 0;
-unsigned long currentTime = 0;
-
-void resetData();
-
 void setupRadio() {
   if (!radio.begin()){
     Serial.println("Radio hardware not responding!!");
@@ -32,16 +27,9 @@ Data_Package checkRadio()
   if(radio.available())
   {
     radio.read(&radio_data, sizeof(Data_Package));
-    lastReceiveTime = millis();
+    return radio_data;
+    
   }
-
-  currentTime = millis();
-  if(currentTime - lastReceiveTime > 1000)
-  {
-    resetData();
-  }
-
-  return radio_data;
 }
 
 void send_Ack(){

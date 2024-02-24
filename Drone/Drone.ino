@@ -14,6 +14,9 @@
 bool is_motor_calibration = false;
 int lastTime = 1;
 
+unsigned long lastReceiveTime = 0;
+unsigned long currentTime = 0;
+
 void setup()
 {
   // Set internal 1.1V voltage reference
@@ -29,10 +32,12 @@ void setup()
 
 void loop()
 {
-  radio_data = checkRadio();
   bool sendAck = false;
-  int int_calibrateMotors = radio_data.calibrateMotors;
 
+  radio_data = checkRadio();
+  lastReceiveTime = millis();
+
+  int int_calibrateMotors = radio_data.calibrateMotors;
   if (int_calibrateMotors == 2)
   {
     Serial.println("Calibrate Motors");
@@ -57,6 +62,12 @@ void loop()
   if (sendAck == true)
   {
     send_Ack();
+  }
+
+  currentTime = millis();
+  if(currentTime - lastReceiveTime > 1000)
+  {
+    resetData();
   }
 }
 

@@ -8,6 +8,7 @@
 extern RF24 radio;
 extern const byte address[6];
 extern int ackData[2];
+
 struct Data_Package {
   byte joy1_X;
   byte joy1_Y;
@@ -26,11 +27,11 @@ struct Data_Package {
   byte pitch;
   byte roll;
 };
-
 extern Data_Package radio_data;
 
 Data_Package checkRadio();
 void setupRadio();
 void send_Ack();
+void resetData();
 
 #endif
