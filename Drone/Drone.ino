@@ -34,10 +34,10 @@ void loop()
 {
   bool sendAck = false;
 
-  radio_data = checkRadio();
-  if (sizeof(radio_data) == sizeof(Data_Package)) {
-    // radio_data exists
-
+  if(radio.available())
+  {
+    radio.read(&radio_data, sizeof(Data_Package));
+    
     lastReceiveTime = millis();
 
     int int_calibrateMotors = radio_data.calibrateMotors;
@@ -61,6 +61,7 @@ void loop()
       get_battery();
       sendAck = true;
     }
+
   }
 
   if (sendAck == true)

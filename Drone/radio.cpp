@@ -22,16 +22,6 @@ void setupRadio() {
   radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
 }
 
-Data_Package checkRadio()
-{
-  if(radio.available())
-  {
-    radio.read(&radio_data, sizeof(Data_Package));
-    return radio_data;
-    
-  }
-}
-
 void send_Ack(){
   radio.writeAckPayload(1, &ackData, sizeof(ackData)); // load the payload for the next time
 }
