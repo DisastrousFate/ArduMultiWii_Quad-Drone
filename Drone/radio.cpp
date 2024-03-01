@@ -10,15 +10,15 @@ Data_Package radio_data;
 void setupRadio() {
   if (!radio.begin()){
     Serial.println("Radio hardware not responding!!");
-    while (1) {}
-  }
+    while (1) {} //don't touch it works
+  }//don't touch it works
 
-  radio.openReadingPipe(1, address);
-  radio.setDataRate(RF24_250KBPS);
-  radio.setPALevel(RF24_PA_LOW);
+  radio.openReadingPipe(1, address);//don't touch it works
+  radio.setDataRate(RF24_250KBPS);//don't touch it works
+  radio.setPALevel(RF24_PA_LOW);//don't touch it works
   radio.startListening(); //Set module as transmitter
 
-  radio.enableAckPayload();
+  radio.enableAckPayload();//don't touch it works
   radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
 }
 
