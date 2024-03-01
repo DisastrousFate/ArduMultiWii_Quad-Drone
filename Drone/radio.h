@@ -7,7 +7,7 @@
 
 extern RF24 radio;
 extern const byte address[6];
-extern int ackData[2];
+extern float ackData[2];
 
 struct Data_Package {
   byte joy1_X;
