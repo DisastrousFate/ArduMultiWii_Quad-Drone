@@ -3,11 +3,18 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <pt.h>
 
 #define FL_MOTOR 3
 #define FR_MOTOR 5
 #define BR_MOTOR 6
 #define BL_MOTOR 9
+
+struct pt pt_motor_calibration;
+
+/////////////////////////////////
+///          BATTERY          ///
+/////////////////////////////////
 
 // Compensation factor, which is inverse of VBAT = (150k / (150k + 150k))
 #define VBAT_DIVIDER_COMP ((33.0 + 100.0) / 33.0)
@@ -15,6 +22,10 @@
 #define RESOLUTION_STEPS 1023
 #define REAL_BATTERY_MV_PER_LSB (VBAT_DIVIDER_COMP * BATTERY_VOLTAGE_REFERENCE_VALUE / RESOLUTION_STEPS)
 #define BATTERY_PIN A0
+
+/////////////////////////////////
+///           RADIO           ///
+/////////////////////////////////
 
 //create an RF24 object
 RF24 radio(7, 8);  // CE, CSN
@@ -62,24 +73,22 @@ void setup()
   // Set internal 1.1V voltage reference
   analogReference(INTERNAL);
 
-  Serial.begin(9600);
-  Serial.println("Board Startup");
-
   pinMode(FL_MOTOR, OUTPUT);
   pinMode(FR_MOTOR, OUTPUT);
   pinMode(BR_MOTOR, OUTPUT);
   pinMode(BL_MOTOR, OUTPUT);
 
+  Serial.begin(9600);
+  Serial.println("Board Startup");
+
   if (!radio.begin()){
     Serial.println("Radio hardware not responding!!");
     while (1) {}
   }
-
   radio.openReadingPipe(1, address);
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_LOW);
   radio.startListening(); //Set module as transmitter
-
   radio.enableAckPayload();
   radio.writeAckPayload(1, &ackData, sizeof(ackData)); // pre-load data
 }
@@ -97,7 +106,7 @@ void loop()
     if (int_calibrateMotors == 2)
     {
       Serial.println("Calibrate Motors");
-      motor_calibration();
+      PT_SCHEDULE(motor_calibration(&pt_motor_calibration));
     }
 
     int int_stopMotors = radio_data.stopMotors;
@@ -130,6 +139,86 @@ void loop()
   
 }
 
+
+/////////////////////////////////
+///          BATTERY          ///
+/////////////////////////////////
+
+void get_battery()
+{
+  int rawValue = analogRead(BATTERY_PIN);
+  float voltage = rawValue * REAL_BATTERY_MV_PER_LSB / 1000.0; // Convert to volts
+
+  ackData[0] = voltage; // Assuming ackData is a float array
+}
+
+//////////////////////////////////
+///          MOTORS           ////
+//////////////////////////////////
+
+int motor_calibration(struct pt *pt) {
+  PT_BEGIN(pt);
+  static unsigned long timer;
+
+  is_motor_calibration = true;
+
+  analogWrite(FL_MOTOR, 255);
+  analogWrite(FR_MOTOR, 255);
+  analogWrite(BR_MOTOR, 255);
+  analogWrite(BL_MOTOR, 255);
+
+  timer = millis();
+  PT_WAIT_UNTIL(pt, millis() - timer > 2000);
+  analogWrite(FL_MOTOR, 0);
+  analogWrite(FR_MOTOR, 0);
+  analogWrite(BR_MOTOR, 0);
+  analogWrite(BL_MOTOR, 0);
+
+  for(int i=0; i<=255; i++)
+  {
+    analogWrite(FL_MOTOR, i);
+    analogWrite(FR_MOTOR, i);
+    analogWrite(BR_MOTOR, i);
+    analogWrite(BL_MOTOR, i);
+    timer = millis();
+    PT_WAIT_UNTIL(pt, millis() - timer > 30);
+  }
+  timer = millis();
+  PT_WAIT_UNTIL(pt, millis() - timer > 500);
+  for(int i=255; i>0; i--){
+    analogWrite(FL_MOTOR, i);
+    analogWrite(FR_MOTOR, i);
+    analogWrite(BR_MOTOR, i);
+    analogWrite(BL_MOTOR, i);
+    timer = millis();
+    PT_WAIT_UNTIL(pt, millis() - timer > 30);
+  }
+  analogWrite(FL_MOTOR, 0);
+  analogWrite(FR_MOTOR, 0);
+  analogWrite(BR_MOTOR, 0);
+  analogWrite(BL_MOTOR, 0);
+
+  Serial.println("Motor calibration Complete!");
+  is_motor_calibration = false;
+
+  PT_END(pt);
+}
+
+void stop_motors()
+{
+  while(is_motor_calibration)
+  {
+    analogWrite(FL_MOTOR, 0);
+    analogWrite(FR_MOTOR, 0);
+    analogWrite(BR_MOTOR, 0);
+    analogWrite(BL_MOTOR, 0);
+  }
+  analogWrite(FL_MOTOR, 0);
+  analogWrite(FR_MOTOR, 0);
+  analogWrite(BR_MOTOR, 0);
+  analogWrite(BL_MOTOR, 0);
+}
+
 void resetData() {
   // Set initial default values
   radio_data.joy1_X = 127;
@@ -148,68 +237,4 @@ void resetData() {
   radio_data.button4 = 1;
   radio_data.pitch = 0;
   radio_data.roll = 0;
-}
-
-void motor_calibration()
-{
-  is_motor_calibration = true;
-
-  analogWrite(FL_MOTOR, 255);
-  analogWrite(FR_MOTOR, 255);
-  analogWrite(BR_MOTOR, 255);
-  analogWrite(BL_MOTOR, 255);
-
-  delay(2000);
-  analogWrite(FL_MOTOR, 0);
-  analogWrite(FR_MOTOR, 0);
-  analogWrite(BR_MOTOR, 0);
-  analogWrite(BL_MOTOR, 0);
-
-  for(int i=0; i<=255; i++)
-  {
-    analogWrite(FL_MOTOR, i);
-    analogWrite(FR_MOTOR, i);
-    analogWrite(BR_MOTOR, i);
-    analogWrite(BL_MOTOR, i);
-    delay(30);
-  }
-  delay(500);
-  for(int i=255; i>0; i--){
-    analogWrite(FL_MOTOR, i);
-    analogWrite(FR_MOTOR, i);
-    analogWrite(BR_MOTOR, i);
-    analogWrite(BL_MOTOR, i);
-    delay(30);
-  }
-
-  analogWrite(FL_MOTOR, 0);
-  analogWrite(FR_MOTOR, 0);
-  analogWrite(BR_MOTOR, 0);
-  analogWrite(BL_MOTOR, 0);
-
-  Serial.println("Motor calibration Complete!");
-  is_motor_calibration = false;
-}
-
-void stop_motors()
-{
-  while(is_motor_calibration)
-  {
-    analogWrite(FL_MOTOR, 0);
-    analogWrite(FR_MOTOR, 0);
-    analogWrite(BR_MOTOR, 0);
-    analogWrite(BL_MOTOR, 0);
-  }
-  analogWrite(FL_MOTOR, 0);
-  analogWrite(FR_MOTOR, 0);
-  analogWrite(BR_MOTOR, 0);
-  analogWrite(BL_MOTOR, 0);
-}
-
-void get_battery()
-{
-  int rawValue = analogRead(BATTERY_PIN);
-  float voltage = rawValue * REAL_BATTERY_MV_PER_LSB / 1000.0; // Convert to volts
-
-  ackData[0] = voltage; // Assuming ackData is a float array
 }
