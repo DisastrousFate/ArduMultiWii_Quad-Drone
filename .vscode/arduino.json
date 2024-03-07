@@ -1,6 +1,6 @@
 {
-    "sketch": "BattV\\BattV.ino",
-    "board": "arduino:avr:pro",
-    "port": "COM5",
-    "configuration": "cpu=16MHzatmega328"
+    "sketch": "Drone\\Drone.ino",
+    "board": "arduino:avr:nano",
+    "port": "COM4",
+    "configuration": "cpu=atmega328"
 }
