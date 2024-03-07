@@ -3,7 +3,7 @@
 
 RF24 radio(7, 8);  // CE, CSN
 const byte address[6] = "toad0";
-int ackData[2] = {109, -4000};
+float ackData[2] = {109, -4000};
 
 Data_Package radio_data;
 
