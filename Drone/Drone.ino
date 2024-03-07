@@ -10,7 +10,7 @@
 #define BR_MOTOR 6
 #define BL_MOTOR 9
 
-struct pt pt_motor_calibration;
+static struct pt pt1;
 
 /////////////////////////////////
 ///          BATTERY          ///
@@ -78,6 +78,8 @@ void setup()
   pinMode(BR_MOTOR, OUTPUT);
   pinMode(BL_MOTOR, OUTPUT);
 
+  PT_INIT(&pt1);
+
   Serial.begin(9600);
   Serial.println("Board Startup");
 
@@ -106,7 +108,7 @@ void loop()
     if (int_calibrateMotors == 2)
     {
       Serial.println("Calibrate Motors");
-      PT_SCHEDULE(motor_calibration(&pt_motor_calibration));
+      motor_calibration(&pt1);
     }
 
     int int_stopMotors = radio_data.stopMotors;
@@ -156,7 +158,7 @@ void get_battery()
 ///          MOTORS           ////
 //////////////////////////////////
 
-int motor_calibration(struct pt *pt) {
+static int motor_calibration(struct pt *pt) {
   PT_BEGIN(pt);
   static unsigned long timer;
 
