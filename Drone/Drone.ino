@@ -3,14 +3,11 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-#include <pt.h>
 
 #define FL_MOTOR 3
 #define FR_MOTOR 5
 #define BR_MOTOR 6
 #define BL_MOTOR 9
-
-static struct pt pt1;
 
 /////////////////////////////////
 ///          BATTERY          ///
@@ -78,8 +75,6 @@ void setup()
   pinMode(BR_MOTOR, OUTPUT);
   pinMode(BL_MOTOR, OUTPUT);
 
-  PT_INIT(&pt1);
-
   Serial.begin(9600);
   Serial.println("Board Startup");
 
@@ -108,7 +103,7 @@ void loop()
     if (int_calibrateMotors == 2)
     {
       Serial.println("Calibrate Motors");
-      motor_calibration(&pt1);
+      motor_calibration();
     }
 
     int int_stopMotors = radio_data.stopMotors;
@@ -158,9 +153,7 @@ void get_battery()
 ///          MOTORS           ////
 //////////////////////////////////
 
-static int motor_calibration(struct pt *pt) {
-  PT_BEGIN(pt);
-  static unsigned long timer;
+void motor_calibration() {
 
   is_motor_calibration = true;
 
@@ -169,8 +162,8 @@ static int motor_calibration(struct pt *pt) {
   analogWrite(BR_MOTOR, 255);
   analogWrite(BL_MOTOR, 255);
 
-  timer = millis();
-  PT_WAIT_UNTIL(pt, millis() - timer > 2000);
+  delay(2000);
+  
   analogWrite(FL_MOTOR, 0);
   analogWrite(FR_MOTOR, 0);
   analogWrite(BR_MOTOR, 0);
@@ -182,18 +175,15 @@ static int motor_calibration(struct pt *pt) {
     analogWrite(FR_MOTOR, i);
     analogWrite(BR_MOTOR, i);
     analogWrite(BL_MOTOR, i);
-    timer = millis();
-    PT_WAIT_UNTIL(pt, millis() - timer > 30);
+    delay(30);
   }
-  timer = millis();
-  PT_WAIT_UNTIL(pt, millis() - timer > 500);
+  delay(500);
   for(int i=255; i>0; i--){
     analogWrite(FL_MOTOR, i);
     analogWrite(FR_MOTOR, i);
     analogWrite(BR_MOTOR, i);
     analogWrite(BL_MOTOR, i);
-    timer = millis();
-    PT_WAIT_UNTIL(pt, millis() - timer > 30);
+    delay(30);
   }
   analogWrite(FL_MOTOR, 0);
   analogWrite(FR_MOTOR, 0);
@@ -203,7 +193,6 @@ static int motor_calibration(struct pt *pt) {
   Serial.println("Motor calibration Complete!");
   is_motor_calibration = false;
 
-  PT_END(pt);
 }
 
 void stop_motors()
