@@ -1,6 +1,5 @@
 {
-    "sketch": "Drone\\Drone.ino",
-    "board": "arduino:avr:nano",
-    "port": "COM4",
-    "configuration": "cpu=atmega328"
+    "sketch": "Controller\\Controller.ino",
+    "board": "arduino:avr:uno",
+    "port": "COM7"
 }

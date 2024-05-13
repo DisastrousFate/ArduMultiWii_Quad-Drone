@@ -3,11 +3,20 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+#include <Servo.h>
 
-#define FL_MOTOR 3
-#define FR_MOTOR 5
-#define BR_MOTOR 6
-#define BL_MOTOR 9
+////////////////////////////////
+///          Motors          ///
+////////////////////////////////
+
+Servo FL_MOTOR;
+Servo FR_MOTOR;
+Servo BR_MOTOR;
+Servo BL_MOTOR;
+
+
+#define MOTOR_MIN 1060
+#define MOTOR_MAX 1860
 
 /////////////////////////////////
 ///          BATTERY          ///
@@ -70,10 +79,10 @@ void setup()
   // Set internal 1.1V voltage reference
   analogReference(INTERNAL);
 
-  pinMode(FL_MOTOR, OUTPUT);
-  pinMode(FR_MOTOR, OUTPUT);
-  pinMode(BR_MOTOR, OUTPUT);
-  pinMode(BL_MOTOR, OUTPUT);
+  FL_MOTOR.attach(3);
+  FR_MOTOR.attach(5);
+  BR_MOTOR.attach(6);
+  BL_MOTOR.attach(9);
 
   Serial.begin(9600);
   Serial.println("Board Startup");
@@ -157,41 +166,44 @@ void motor_calibration() {
 
   is_motor_calibration = true;
 
-  analogWrite(FL_MOTOR, 255);
-  analogWrite(FR_MOTOR, 255);
-  analogWrite(BR_MOTOR, 255);
-  analogWrite(BL_MOTOR, 255);
+  FL_MOTOR.writeMicroseconds(MOTOR_MAX);
+  FR_MOTOR.writeMicroseconds(MOTOR_MAX);
+  BR_MOTOR.writeMicroseconds(MOTOR_MAX);
+  BL_MOTOR.writeMicroseconds(MOTOR_MAX);
 
   delay(2000);
   
-  analogWrite(FL_MOTOR, 0);
-  analogWrite(FR_MOTOR, 0);
-  analogWrite(BR_MOTOR, 0);
-  analogWrite(BL_MOTOR, 0);
+  FL_MOTOR.writeMicroseconds(MOTOR_MIN);
+  FR_MOTOR.writeMicroseconds(MOTOR_MIN);
+  BR_MOTOR.writeMicroseconds(MOTOR_MIN);
+  BL_MOTOR.writeMicroseconds(MOTOR_MIN);
 
-  for(int i=0; i<=255; i++)
+  for(int i=MOTOR_MIN; i<=MOTOR_MAX; i++)
   {
-    analogWrite(FL_MOTOR, i);
-    analogWrite(FR_MOTOR, i);
-    analogWrite(BR_MOTOR, i);
-    analogWrite(BL_MOTOR, i);
+    FL_MOTOR.writeMicroseconds(i);
+    FR_MOTOR.writeMicroseconds(i);
+    BR_MOTOR.writeMicroseconds(i);
+    BL_MOTOR.writeMicroseconds(i);
+
     delay(30);
   }
   delay(500);
-  for(int i=255; i>0; i--){
-    analogWrite(FL_MOTOR, i);
-    analogWrite(FR_MOTOR, i);
-    analogWrite(BR_MOTOR, i);
-    analogWrite(BL_MOTOR, i);
+  for(int i=2000; i>1000; i--){
+    FL_MOTOR.writeMicroseconds(i);
+    FR_MOTOR.writeMicroseconds(i);
+    BR_MOTOR.writeMicroseconds(i);
+    BL_MOTOR.writeMicroseconds(i);
     delay(30);
   }
-  analogWrite(FL_MOTOR, 0);
-  analogWrite(FR_MOTOR, 0);
-  analogWrite(BR_MOTOR, 0);
-  analogWrite(BL_MOTOR, 0);
+  
+  FL_MOTOR.writeMicroseconds(MOTOR_MIN);
+  FR_MOTOR.writeMicroseconds(MOTOR_MIN);
+  BR_MOTOR.writeMicroseconds(MOTOR_MIN);
+  BL_MOTOR.writeMicroseconds(MOTOR_MIN);
 
   Serial.println("Motor calibration Complete!");
   is_motor_calibration = false;
+
 
 }
 
@@ -199,15 +211,15 @@ void stop_motors()
 {
   while(is_motor_calibration)
   {
-    analogWrite(FL_MOTOR, 0);
-    analogWrite(FR_MOTOR, 0);
-    analogWrite(BR_MOTOR, 0);
-    analogWrite(BL_MOTOR, 0);
+    FL_MOTOR.writeMicroseconds(MOTOR_MIN);
+    FR_MOTOR.writeMicroseconds(MOTOR_MIN);
+    BR_MOTOR.writeMicroseconds(MOTOR_MIN);
+    BL_MOTOR.writeMicroseconds(MOTOR_MIN);
   }
-  analogWrite(FL_MOTOR, 0);
-  analogWrite(FR_MOTOR, 0);
-  analogWrite(BR_MOTOR, 0);
-  analogWrite(BL_MOTOR, 0);
+  FL_MOTOR.writeMicroseconds(MOTOR_MIN);
+  FR_MOTOR.writeMicroseconds(MOTOR_MIN);
+  BR_MOTOR.writeMicroseconds(MOTOR_MIN);
+  BL_MOTOR.writeMicroseconds(MOTOR_MIN);
 }
 
 void resetData() {
