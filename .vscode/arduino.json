@@ -1,5 +1,5 @@
 {
-    "sketch": "Demo\\PPM_Demo\\PPM_Demo.ino",
+    "sketch": "MultiWii\\Firmware\\MultiWii\\MultiWii.cpp",
     "board": "arduino:avr:nano",
     "port": "COM6",
     "configuration": "cpu=atmega328"

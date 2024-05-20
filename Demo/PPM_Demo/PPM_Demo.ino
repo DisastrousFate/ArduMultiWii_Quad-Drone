@@ -1,8 +1,8 @@
 #include <PPMReader.h>
 // #include <InterruptHandler.h>   <-- You may need this on some versions of Arduino
 
-// Initialize a PPMReader on digital pin 3 with 6 expected channels.
-int interruptPin = 3;
+// Initialize a PPMReader on digital pin 2 with 6 expected channels.
+int interruptPin = 2;
 int channelAmount = 6;
 PPMReader ppm(interruptPin, channelAmount);
 
