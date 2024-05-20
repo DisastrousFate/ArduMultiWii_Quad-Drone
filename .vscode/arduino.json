@@ -1,5 +1,6 @@
 {
-    "sketch": "Controller\\Controller.ino",
-    "board": "arduino:avr:uno",
-    "port": "COM7"
+    "sketch": "Demo\\PPM_Demo\\PPM_Demo.ino",
+    "board": "arduino:avr:nano",
+    "port": "COM6",
+    "configuration": "cpu=atmega328"
 }
