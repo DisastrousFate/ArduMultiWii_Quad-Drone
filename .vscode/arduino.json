@@ -1,6 +1,5 @@
 {
-    "sketch": "MultiWii\\Firmware\\MultiWii\\MultiWii.cpp",
+    "sketch": "Controller\\Controller.ino",
     "board": "arduino:avr:nano",
-    "port": "COM6",
-    "configuration": "cpu=atmega328"
+    "port": "COM6"
 }
